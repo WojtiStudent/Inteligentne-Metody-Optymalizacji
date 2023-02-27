@@ -1,0 +1,1 @@
+# Inteligentne-Metody-Optymalizacji
