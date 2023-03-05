@@ -24,7 +24,9 @@ def get_next_node(distance_matrix: np.array, visited_nodes: List[List[int]],
     sum_distance_matrix = processed_distance_matrix.copy()
 
     for i in range(len(processed_distance_matrix) - 1):
-        sum_distance_matrix[i] += sum_distance_matrix[i+1]
+        left_node_index = visited_nodes[current_graph_index][i]
+        right_node_index = visited_nodes[current_graph_index][i+1]
+        sum_distance_matrix[i] += sum_distance_matrix[i+1] - distance_matrix[left_node_index][right_node_index]
 
     if len(processed_distance_matrix) == 2:
         sum_distance_matrix = sum_distance_matrix[:1]
