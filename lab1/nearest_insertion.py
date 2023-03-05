@@ -2,6 +2,9 @@ import random
 import numpy as np
 from typing import List, Tuple
 
+from utils.algorithm_utils import get_init_nodes
+
+
 def find_min_in_array(array: np.ndarray, n: int, visited: List[int]) -> Tuple[int, int]:
     """
     Finds the minimum value in the array and returns its index and the position in the cycle on which to place the vertex.
@@ -22,21 +25,14 @@ def find_min_in_array(array: np.ndarray, n: int, visited: List[int]) -> Tuple[in
     return min_index, position_in_cycle
 
 
-def tcp_nearest_insertion(distance_graph: np.ndarray) -> Tuple[List[int], List[int]]:
+def tcp_nearest_insertion(distance_graph: np.ndarray) -> List[List[int]]:
     """
     Finds a solution to the Travelling Salesman Problem using the Nearest Insertion algorithm.
     :param distance_graph: numpy array with distances
     :return: two lists of vertexes representing two cycles
     """
     n = len(distance_graph)
-    # Start with a random node
-    start_node1 = random.randint(0, n - 1)
-    # Find the farthest vertex from the start node
-    distances_wo_start_node1 = distance_graph[start_node1, :].copy()
-    distances_wo_start_node1[start_node1] = 0
-    start_node2 = np.argmax(distances_wo_start_node1)
-
-    visited_lists = ([start_node1], [start_node2])
+    visited_lists = get_init_nodes(distance_graph)
     n_visited = 2
     while n_visited < n:
         for i, cycle in enumerate(visited_lists):
