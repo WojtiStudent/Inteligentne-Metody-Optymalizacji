@@ -1,6 +1,8 @@
 import pandas as pd
 import scipy.spatial
 import numpy as np
+from pathlib import Path
+
 
 def load_data(path: str, lines_to_skip: int) -> pd.DataFrame:
     """
@@ -28,3 +30,13 @@ def create_graph(df: pd.DataFrame) -> np.ndarray:
     dfm = pd.DataFrame(distance_matrix).round().astype(int)
     np.fill_diagonal(distance_matrix, np.inf)
     return dfm.values
+
+
+def directory(path: str) -> str:
+    """
+    Creates a directory if it does not exist.
+    :param path: path to the directory
+    :return: input path
+    """
+    Path(path).mkdir(parents=True, exist_ok=True)
+    return path
