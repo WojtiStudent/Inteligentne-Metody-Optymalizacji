@@ -6,12 +6,13 @@ from typing import Dict, List
 
 import utils.io as io
 import lab1.nearest_insertion as nnwi
+import lab1.greedy_cycle as gc
 import lab1.scoring as scoring
 
 N_INSTANCES = 100
 DATA_DIR = 'data'
 FILES = ['kroa100.tsp', 'krob100.tsp']
-ALGORITHMS = {"Nearest Inserion": nnwi.tcp_nearest_insertion}
+ALGORITHMS = {"Nearest insertion": nnwi.tcp_nearest_insertion, "Greedy Cycle": gc.tcp_greedy_cycle}
 
 if __name__ == "__main__":
     distance_graphs = [io.create_graph(io.load_data(os.path.join(DATA_DIR, f), 6)) for f in FILES]
@@ -47,6 +48,6 @@ if __name__ == "__main__":
         results[name] = pd.DataFrame({'file': file_names, 'cycles_length': algorithm_results})
         best_solutions[name] = best_algorithm_solutions
 
-    # print(results['Nearest Inserion'])
-            
+    print(results['Nearest insertion'])
+    print(results['Greedy Cycle'])
             
