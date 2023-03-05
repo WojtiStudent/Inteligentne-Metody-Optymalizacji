@@ -7,6 +7,7 @@ from typing import Dict, List
 import utils.io as io
 import lab1.nearest_insertion as nnwi
 import lab1.greedy_cycle as gc
+import lab1.greedy_cycle_two_regret_heuristic as trh
 import lab1.scoring as scoring
 from utils.visualization import visualize_graph
 
@@ -14,7 +15,9 @@ N_INSTANCES = 100
 DATA_DIR = 'data'
 RESULT_DIR = io.directory('result')
 FILES = ['kroa100.tsp', 'krob100.tsp']
-ALGORITHMS = {"Nearest insertion": nnwi.tcp_nearest_insertion, "Greedy Cycle": gc.tcp_greedy_cycle}
+ALGORITHMS = {"Nearest insertion": nnwi.tcp_nearest_insertion,
+              "Greedy Cycle": gc.tcp_greedy_cycle,
+              "Greedy cycle two regret heuristic": trh.tcp_greedy_cycle_two_regret_heuristic}
 
 if __name__ == "__main__":
     loaded_files = {f: io.load_data(os.path.join(DATA_DIR, f), 6) for f in FILES}
@@ -45,19 +48,9 @@ if __name__ == "__main__":
                 if cycles_length < min_cycle_length:
                     min_cycle_length = cycles_length
                     best_solution = cycles
-
             best_algorithm_solutions[file_name] = best_solution
+            visualize_graph(best_solution, loaded_files[file_name],
+                            f"{RESULT_DIR}/{name}_{file_name.split('.')[0]}.png")
 
         results[name] = pd.DataFrame({'file': file_names, 'cycles_length': algorithm_results})
         best_solutions[name] = best_algorithm_solutions
-
-
-    visualize_graph(best_solutions['Greedy Cycle']['kroa100.tsp'], loaded_files['kroa100.tsp'],
-                    f'{RESULT_DIR}/greedy_cycle_kroa100.png')
-    visualize_graph(best_solutions['Greedy Cycle']['krob100.tsp'], loaded_files['krob100.tsp'],
-                    f'{RESULT_DIR}/greedy_cycle_krob100.png')
-    visualize_graph(best_solutions['Nearest insertion']['kroa100.tsp'], loaded_files['kroa100.tsp'],
-                    f'{RESULT_DIR}/nearest_insertion_kroa100.png')
-    visualize_graph(best_solutions['Nearest insertion']['krob100.tsp'], loaded_files['krob100.tsp'],
-                    f'{RESULT_DIR}/nearest_insertion_krob100.png')
-            
