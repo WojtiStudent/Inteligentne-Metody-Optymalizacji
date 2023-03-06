@@ -55,3 +55,14 @@ if __name__ == "__main__":
 
         results[name] = pd.DataFrame({'file': file_names, 'cycles_length': algorithm_results})
         best_solutions[name] = best_algorithm_solutions
+
+    for name, result in results.items():
+        grouped_df = result.groupby('file')
+
+        print(name)
+        for key, item in grouped_df:
+            mean = grouped_df.get_group(key)['cycles_length'].mean()
+            min_len = grouped_df.get_group(key)['cycles_length'].min()
+            max_len = grouped_df.get_group(key)['cycles_length'].max()
+            print(f"\tFile: {key}  | Score: {mean}({min_len} - {max_len})")
+    
