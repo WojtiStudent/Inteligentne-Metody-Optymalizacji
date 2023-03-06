@@ -22,7 +22,7 @@ def get_maximum_regret_index(distance_matrix: np.array):
     """
     reshaped_distance_matrix = distance_matrix.T
     best_values = np.sort(reshaped_distance_matrix, axis=1)[:, :2]
-    regret = (best_values[:, 1] - best_values[:, 0])
+    regret = (best_values[:, 1] - best_values[:, 0]) / (best_values[:, 0] + 0.001)
     return np.argmax(regret)
 
 

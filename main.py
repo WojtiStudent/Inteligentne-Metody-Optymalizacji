@@ -8,7 +8,7 @@ import utils.io as io
 import lab1.nearest_insertion as nnwi
 import lab1.greedy_cycle as gc
 import lab1.greedy_cycle_two_regret_heuristic as trh
-import lab1.scoring as scoring
+import utils.scoring as scoring
 from utils.visualization import visualize_graph
 
 N_INSTANCES = 100
@@ -50,7 +50,8 @@ if __name__ == "__main__":
                     best_solution = cycles
             best_algorithm_solutions[file_name] = best_solution
             visualize_graph(best_solution, loaded_files[file_name],
-                            f"{RESULT_DIR}/{name}_{file_name.split('.')[0]}.png")
+                            f"{RESULT_DIR}/{'_'.join(name.split())}_{file_name.split('.')[0]}_{min_cycle_length}.png")
+
 
         results[name] = pd.DataFrame({'file': file_names, 'cycles_length': algorithm_results})
         best_solutions[name] = best_algorithm_solutions
