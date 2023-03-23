@@ -1,6 +1,7 @@
 import os
 import matplotlib as plt
-plt.rcParams.update({'figure.max_open_warning': 0})
+
+plt.rcParams.update({"figure.max_open_warning": 0})
 import numpy as np
 import pandas as pd
 import tqdm
@@ -33,76 +34,70 @@ ALGORITHMS = {
     "two_regret_solution_base": GreedySearch(
         solution_initializer=TwoRegretSolutionGenerator(), actions_generators=[]
     ),
-
-
     "greedy_search_two_regret_edges": GreedySearch(
         solution_initializer=TwoRegretSolutionGenerator(),
-        actions_generators=[EdgesSwapGenerator()],
+        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
     ),
     "greedy_search_two_regret_vertices": GreedySearch(
         solution_initializer=TwoRegretSolutionGenerator(),
         actions_generators=[
-            InCycleVerticesSwapGenerator(),
             OutCycleVerticesSwapGenerator(),
+            InCycleVerticesSwapGenerator(),
         ],
     ),
     "greedy_search_random_edges": GreedySearch(
         solution_initializer=RandomSolutionGenerator(),
-        actions_generators=[EdgesSwapGenerator()],
+        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
     ),
     "greedy_search_random_vertices": GreedySearch(
         solution_initializer=RandomSolutionGenerator(),
         actions_generators=[
-            InCycleVerticesSwapGenerator(),
             OutCycleVerticesSwapGenerator(),
+            InCycleVerticesSwapGenerator(),
         ],
     ),
-
-
     "steepest_search_two_regret_edges": SteepestSearch(
         solution_initializer=TwoRegretSolutionGenerator(),
-        actions_generators=[EdgesSwapGenerator()],
+        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
     ),
     "steepest_search_two_regret_vertices": SteepestSearch(
         solution_initializer=TwoRegretSolutionGenerator(),
         actions_generators=[
-            InCycleVerticesSwapGenerator(),
             OutCycleVerticesSwapGenerator(),
+            InCycleVerticesSwapGenerator(),
         ],
     ),
     "steepest_search_random_edges": SteepestSearch(
         solution_initializer=RandomSolutionGenerator(),
-        actions_generators=[EdgesSwapGenerator()],
+        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
     ),
     "steepest_search_random_vertices": SteepestSearch(
         solution_initializer=RandomSolutionGenerator(),
         actions_generators=[
-            InCycleVerticesSwapGenerator(),
             OutCycleVerticesSwapGenerator(),
+            InCycleVerticesSwapGenerator(),
         ],
     ),
-
-
     "random_walk_search_two_regret_edges": RandomWalkSearch(
         solution_initializer=TwoRegretSolutionGenerator(),
-        actions_generators=[EdgesSwapGenerator()],
+        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
     ),
     "random_walk_search_two_regret_vertices": RandomWalkSearch(
         solution_initializer=TwoRegretSolutionGenerator(),
         actions_generators=[
-            InCycleVerticesSwapGenerator(),
             OutCycleVerticesSwapGenerator(),
+            InCycleVerticesSwapGenerator(),
         ],
     ),
     "random_walk_search_random_edges": RandomWalkSearch(
         solution_initializer=RandomSolutionGenerator(),
-        actions_generators=[EdgesSwapGenerator()],
+        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
     ),
     "random_walk_search_random_vertices": RandomWalkSearch(
         solution_initializer=RandomSolutionGenerator(),
         actions_generators=[
-            InCycleVerticesSwapGenerator(),
             OutCycleVerticesSwapGenerator(),
+            InCycleVerticesSwapGenerator(),
         ],
     ),
 }
@@ -154,8 +149,8 @@ if __name__ == "__main__":
 
             times.append(
                 (
-                      f"{name}_{file_name}",
-                      f"{round(np.mean(local_times), 3)}({round(min(local_times), 3)} - {round(max(local_times), 3)})"
+                    f"{name}_{file_name}",
+                    f"{round(np.mean(local_times), 3)}({round(min(local_times), 3)} - {round(max(local_times), 3)})",
                 )
             )
             best_algorithm_solutions[file_name] = best_solution
