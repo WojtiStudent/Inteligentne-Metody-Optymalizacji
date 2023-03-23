@@ -155,7 +155,7 @@ if __name__ == "__main__":
             times.append(
                 (
                       f"{name}_{file_name}",
-                      f"{np.mean(local_times)}({min(local_times)} - {max(local_times)})"
+                      f"{round(np.mean(local_times), 3)}({round(min(local_times), 3)} - {round(max(local_times), 3)})"
                 )
             )
             best_algorithm_solutions[file_name] = best_solution
@@ -179,3 +179,10 @@ if __name__ == "__main__":
             min_len = grouped_df.get_group(key)["cycles_length"].min()
             max_len = grouped_df.get_group(key)["cycles_length"].max()
             print(f"\tFile: {key}  | Score: {mean}({min_len} - {max_len})")
+
+    for i in times:
+        tmp = i[0].split("_")
+        file_name = tmp[-1]
+        algorithm_name = "_".join(tmp[:-1])
+        print(algorithm_name)
+        print(f"\tFile: {file_name}  | Time: {i[1]}")
