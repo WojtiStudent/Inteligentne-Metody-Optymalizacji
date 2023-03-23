@@ -32,17 +32,16 @@ class EdgesSwapGenerator:
     def __call__(self, solution, distance_matrix):
         actions = []
         for cycle_index, cycle in enumerate(solution):
-            possible_pairs = itertools.product(cycle, cycle)
+            possible_pairs = itertools.combinations(cycle, r=2 ) #itertools.product(cycle, cycle)
             for i, j in possible_pairs:
-                if i != j:
-                    actions.append(
-                        Action(
-                            name="swapEdgesInsideCycle",
-                            i=i,
-                            j=j,
-                            cycle_index=cycle_index,
-                            delta=calculate_delta(cycle, i, j, distance_matrix),
-                            do=swap_edges_inside_cycle,
-                        )
+                actions.append(
+                    Action(
+                        name="swapEdgesInsideCycle",
+                        i=i,
+                        j=j,
+                        cycle_index=cycle_index,
+                        delta=calculate_delta(cycle, i, j, distance_matrix),
+                        do=swap_edges_inside_cycle,
                     )
+                )
         return actions

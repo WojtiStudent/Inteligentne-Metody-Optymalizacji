@@ -1,9 +1,11 @@
 import os
-
+import matplotlib as plt
+plt.rcParams.update({'figure.max_open_warning': 0})
 import numpy as np
 import pandas as pd
 import tqdm
-from typing import Dict, List
+import time
+from typing import Dict, List, Tuple
 
 import utils.io as io
 
@@ -16,7 +18,7 @@ from lab2.action_generators import (
     OutCycleVerticesSwapGenerator,
     EdgesSwapGenerator,
 )
-from lab2.algorithms import GreedySearch
+from lab2.algorithms import GreedySearch, SteepestSearch, RandomWalkSearch
 from utils.scoring import get_cycle_length
 from utils.visualization import visualize_graph
 
@@ -31,6 +33,8 @@ ALGORITHMS = {
     "two_regret_solution_base": GreedySearch(
         solution_initializer=TwoRegretSolutionGenerator(), actions_generators=[]
     ),
+
+
     "greedy_search_two_regret_edges": GreedySearch(
         solution_initializer=TwoRegretSolutionGenerator(),
         actions_generators=[EdgesSwapGenerator()],
@@ -47,6 +51,54 @@ ALGORITHMS = {
         actions_generators=[EdgesSwapGenerator()],
     ),
     "greedy_search_random_vertices": GreedySearch(
+        solution_initializer=RandomSolutionGenerator(),
+        actions_generators=[
+            InCycleVerticesSwapGenerator(),
+            OutCycleVerticesSwapGenerator(),
+        ],
+    ),
+
+
+    "steepest_search_two_regret_edges": SteepestSearch(
+        solution_initializer=TwoRegretSolutionGenerator(),
+        actions_generators=[EdgesSwapGenerator()],
+    ),
+    "steepest_search_two_regret_vertices": SteepestSearch(
+        solution_initializer=TwoRegretSolutionGenerator(),
+        actions_generators=[
+            InCycleVerticesSwapGenerator(),
+            OutCycleVerticesSwapGenerator(),
+        ],
+    ),
+    "steepest_search_random_edges": SteepestSearch(
+        solution_initializer=RandomSolutionGenerator(),
+        actions_generators=[EdgesSwapGenerator()],
+    ),
+    "steepest_search_random_vertices": SteepestSearch(
+        solution_initializer=RandomSolutionGenerator(),
+        actions_generators=[
+            InCycleVerticesSwapGenerator(),
+            OutCycleVerticesSwapGenerator(),
+        ],
+    ),
+
+
+    "random_walk_search_two_regret_edges": RandomWalkSearch(
+        solution_initializer=TwoRegretSolutionGenerator(),
+        actions_generators=[EdgesSwapGenerator()],
+    ),
+    "random_walk_search_two_regret_vertices": RandomWalkSearch(
+        solution_initializer=TwoRegretSolutionGenerator(),
+        actions_generators=[
+            InCycleVerticesSwapGenerator(),
+            OutCycleVerticesSwapGenerator(),
+        ],
+    ),
+    "random_walk_search_random_edges": RandomWalkSearch(
+        solution_initializer=RandomSolutionGenerator(),
+        actions_generators=[EdgesSwapGenerator()],
+    ),
+    "random_walk_search_random_vertices": RandomWalkSearch(
         solution_initializer=RandomSolutionGenerator(),
         actions_generators=[
             InCycleVerticesSwapGenerator(),
@@ -70,6 +122,8 @@ if __name__ == "__main__":
         str, Dict[str, List[int]]
     ] = {}  # {algorithm_name: {file_name: best_solution}}
 
+    times: List[Tuple[str, str]] = []
+
     # Run each algorithm
     for name, algorithm in ALGORITHMS.items():
         algorithm_results = []
@@ -81,10 +135,13 @@ if __name__ == "__main__":
             file_names += [file_name] * N_INSTANCES
             min_cycle_length = np.inf
             best_solution = None
+            local_times = []
 
             # Run the algorithm N_INSTANCES times
             for i in tqdm.tqdm(range(N_INSTANCES), desc=f"{name} {file_name}"):
+                start = time.time()
                 cycles = algorithm(distance_graph)
+                local_times.append(time.time() - start)
                 cycles_length = sum(
                     [get_cycle_length(distance_graph, cycle) for cycle in cycles]
                 )
@@ -94,6 +151,13 @@ if __name__ == "__main__":
                 if cycles_length < min_cycle_length:
                     min_cycle_length = cycles_length
                     best_solution = cycles
+
+            times.append(
+                (
+                      f"{name}_{file_name}",
+                      f"{np.mean(local_times)}({min(local_times)} - {max(local_times)})"
+                )
+            )
             best_algorithm_solutions[file_name] = best_solution
             visualize_graph(
                 best_solution,
