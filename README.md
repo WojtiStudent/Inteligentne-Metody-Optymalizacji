@@ -2,4 +2,7 @@
 
 ## Opis
 * Każdy pakiet nazwany "labX" zawiera algorytmy potrzebne do wykonania zadania z laboratorium X.
-* W pliku "main.py" znajduje się kod wykonujący eksperymenty dla każdego laboratiorium(tymczasowo?)
+* Każde laboratorium może zostać uruchomione komendą:
+```bash
+python3 script_lab_X.py
+```
