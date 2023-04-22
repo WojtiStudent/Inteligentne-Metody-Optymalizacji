@@ -3,28 +3,38 @@ import itertools
 from lab2.action_generators.action import Action
 
 
-def swap_edges_inside_cycle(cycle, i, j):
+def swap_edges_inside_cycle(cycle, i, j, change_type="after"):
     i_index = cycle.index(i)
     j_index = cycle.index(j)
 
     if i_index > j_index:
         i_index, j_index = j_index, i_index
-    reversed = cycle[i_index + 1 : j_index + 1]
-    reversed.reverse()
 
-    cycle[i_index + 1 : j_index + 1] = reversed
+    if change_type == "after":
+        reversed = cycle[i_index + 1 : j_index + 1]
+        reversed.reverse()
+        cycle[i_index + 1 : j_index + 1] = reversed
+    elif change_type == "before":
+        reversed = cycle[i_index : j_index]
+        reversed.reverse()
+        cycle[i_index : j_index] = reversed
 
 
-def calculate_delta(cycle, i, j, distance_matrix):
+def calculate_delta(cycle, i, j, distance_matrix, change_type="after"):
     i_index, j_index = cycle.index(i), cycle.index(j)
-    after_i = cycle[(i_index + 1) % len(cycle)]
-    after_j = cycle[(j_index + 1) % len(cycle)]
+
+    if change_type == "after":
+        next_i = cycle[(i_index + 1) % len(cycle)]
+        next_j = cycle[(j_index + 1) % len(cycle)]
+    else:
+        next_i = cycle[(i_index - 1) % len(cycle)]
+        next_j = cycle[(j_index - 1) % len(cycle)]
 
     return (
         distance_matrix[i, j]
-        + distance_matrix[after_i, after_j]
-        - distance_matrix[i, after_i]
-        - distance_matrix[j, after_j]
+        + distance_matrix[next_i, next_j]
+        - distance_matrix[i, next_i]
+        - distance_matrix[j, next_j]
     )
 
 

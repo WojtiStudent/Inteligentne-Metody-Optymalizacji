@@ -9,3 +9,4 @@ class Action:
     cycle_index: int
     delta: int
     do: callable
+    change_type: str = None

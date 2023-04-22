@@ -31,14 +31,29 @@ class CandidateMoves:
                     neighbour_cycle = self.get_node_info(neighbour, solution)
 
                     if node_cycle == neighbour_cycle:
-                        action = Action(
-                            name="swapEdges",
-                            i=node,
-                            j=neighbour,
-                            cycle_index=node_cycle,
-                            delta=edges_swap.calculate_delta(solution[node_cycle], node, neighbour, distance_matrix),
-                            do=edges_swap.swap_edges_inside_cycle,
-                        )
+                        delta_change_after = edges_swap.calculate_delta(solution[node_cycle], node, neighbour, distance_matrix, "after")
+                        delta_change_before = edges_swap.calculate_delta(solution[node_cycle], node, neighbour, distance_matrix, "before")
+
+                        if delta_change_after < delta_change_before:
+                            action = Action(
+                                name="swapEdges",
+                                i=node,
+                                j=neighbour,
+                                cycle_index=node_cycle,
+                                delta=delta_change_after,
+                                do=edges_swap.swap_edges_inside_cycle,
+                                change_type="after",
+                            )
+                        else:
+                            action = Action(
+                                name="swapEdges",
+                                i=node,
+                                j=neighbour,
+                                cycle_index=node_cycle,
+                                delta=delta_change_before,
+                                do=edges_swap.swap_edges_inside_cycle,
+                                change_type="before",
+                            )
                     else:
                         if node_cycle != 0:
                             node, neighbour = neighbour, node
@@ -55,7 +70,7 @@ class CandidateMoves:
 
             if best_action is not None and best_action.delta < 0:
                 if best_action.name == "swapEdges":
-                    best_action.do(solution[best_action.cycle_index], best_action.i, best_action.j)
+                    best_action.do(solution[best_action.cycle_index], best_action.i, best_action.j, best_action.change_type)
                 else:
                     best_action.do(solution, best_action.i, best_action.j)
             else:
