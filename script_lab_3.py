@@ -2,6 +2,7 @@ import os
 import matplotlib as plt
 
 from lab2.algorithms import SteepestSearch
+from lab3.algorithms.SteepestSearchWithMemory import SteepestSearchWithMemory
 
 plt.rcParams.update({"figure.max_open_warning": 0})
 import numpy as np
@@ -13,7 +14,7 @@ from typing import Dict, List, Tuple
 import utils.io as io
 
 from lab2.solution_initializers import (
-    TwoRegretSolutionGenerator,
+    TwoRegretSolutionGenerator, RandomSolutionGenerator,
 )
 from lab2.action_generators import (
     InCycleVerticesSwapGenerator,
@@ -26,18 +27,19 @@ from utils.visualization import visualize_graph
 
 from lab3.algorithms.candidate_moves import CandidateMoves
 
-N_INSTANCES = 100
+N_INSTANCES = 1
 DATA_DIR = "data"
 RESULT_DIR = io.directory("result/lab3")
-FILES = ["kroa200.tsp", "krob200.tsp"]
+FILES = ["kroa200.tsp"]
 
-BASE_SOLUTION_GENERATOR = TwoRegretSolutionGenerator()
+SOLUTION_INITIALIZER = RandomSolutionGenerator()
 
 ALGORITHMS = {
-    "Two Regret": BASE_SOLUTION_GENERATOR,
-    "Steepest Search": SteepestSearch(actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
-                                      solution_initializer=None),
-    "Candidate Moves": CandidateMoves()
+    # "Two Regret": TwoRegretSolutionGenerator(),
+    # "Steepest Search": SteepestSearch(actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
+    #                                   solution_initializer=SOLUTION_INITIALIZER),
+    # "Candidate Moves": CandidateMoves(solution_initializer=SOLUTION_INITIALIZER),
+    "Steepest Search with memory": SteepestSearchWithMemory(solution_initializer=SOLUTION_INITIALIZER),
 }
 
 if __name__ == "__main__":
@@ -56,7 +58,6 @@ if __name__ == "__main__":
 
     times: List[Tuple[str, str]] = []
 
-    START_SOLUTIONS = {}
     # Run each algorithm
     for name, algorithm in ALGORITHMS.items():
         algorithm_results = []
@@ -73,10 +74,7 @@ if __name__ == "__main__":
             # Run the algorithm N_INSTANCES times
             for i in tqdm.tqdm(range(N_INSTANCES), desc=f"{name} {file_name}"):
                 start = time.time()
-                if name == "Two Regret":
-                    cycles = algorithm(distance_graph)
-                else:
-                    cycles = algorithm(distance_graph, START_SOLUTIONS[file_name])
+                cycles = algorithm(distance_graph)
                 local_times.append(time.time() - start)
                 cycles_length = sum(
                     [get_cycle_length(distance_graph, cycle) for cycle in cycles]
@@ -87,6 +85,7 @@ if __name__ == "__main__":
                 if cycles_length < min_cycle_length:
                     min_cycle_length = cycles_length
                     best_solution = cycles
+                print(f"{name} {file_name} {cycles_length}")
 
             times.append(
                 (
@@ -100,8 +99,6 @@ if __name__ == "__main__":
                 loaded_files[file_name],
                 f"{RESULT_DIR}/{'_'.join(name.split())}_{file_name.split('.')[0]}_{min_cycle_length}.png",
             )
-            if name == "Two Regret":
-                START_SOLUTIONS[file_name] = best_solution
 
         results[name] = pd.DataFrame(
             {"file": file_names, "cycles_length": algorithm_results}

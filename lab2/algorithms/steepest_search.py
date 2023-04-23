@@ -16,9 +16,8 @@ class SteepestSearch:
             possible_actions.extend(generator(solution, distance_matrix))
         return possible_actions
 
-    def __call__(self, distance_matrix, solution=None):
-        if solution is None:
-            solution = self.solution_initializer(distance_matrix)
+    def __call__(self, distance_matrix):
+        solution = self.solution_initializer(distance_matrix)
         score = sum([get_cycle_length(distance_matrix, cycle) for cycle in solution])
 
         improved_done = True

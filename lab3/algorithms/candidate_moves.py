@@ -5,8 +5,8 @@ import lab2.action_generators.edges_swap_generator as edges_swap
 
 
 class CandidateMoves:
-    def __init__(self):
-        pass
+    def __init__(self, solution_initializer):
+        self.solution_initializer = solution_initializer
 
     @staticmethod
     def get_nearest_neighbours(distance_matrix):
@@ -20,7 +20,8 @@ class CandidateMoves:
         cycle = 0 if node in solution[0] else 1
         return cycle
 
-    def __call__(self, distance_matrix, solution):
+    def __call__(self, distance_matrix):
+        solution = self.solution_initializer(distance_matrix)
         nearest_neighbours = self.get_nearest_neighbours(distance_matrix)
 
         while True:
