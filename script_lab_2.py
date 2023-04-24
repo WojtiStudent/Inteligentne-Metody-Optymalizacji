@@ -78,28 +78,28 @@ ALGORITHMS = {
             InCycleVerticesSwapGenerator(),
         ],
     ),
-    "random_walk_search_two_regret_edges": RandomWalkSearch(
-        solution_initializer=TwoRegretSolutionGenerator(),
-        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
-    ),
-    "random_walk_search_two_regret_vertices": RandomWalkSearch(
-        solution_initializer=TwoRegretSolutionGenerator(),
-        actions_generators=[
-            OutCycleVerticesSwapGenerator(),
-            InCycleVerticesSwapGenerator(),
-        ],
-    ),
-    "random_walk_search_random_edges": RandomWalkSearch(
-        solution_initializer=RandomSolutionGenerator(),
-        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
-    ),
-    "random_walk_search_random_vertices": RandomWalkSearch(
-        solution_initializer=RandomSolutionGenerator(),
-        actions_generators=[
-            OutCycleVerticesSwapGenerator(),
-            InCycleVerticesSwapGenerator(),
-        ],
-    ),
+    # "random_walk_search_two_regret_edges": RandomWalkSearch(
+    #     solution_initializer=TwoRegretSolutionGenerator(),
+    #     actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
+    # ),
+    # "random_walk_search_two_regret_vertices": RandomWalkSearch(
+    #     solution_initializer=TwoRegretSolutionGenerator(),
+    #     actions_generators=[
+    #         OutCycleVerticesSwapGenerator(),
+    #         InCycleVerticesSwapGenerator(),
+    #     ],
+    # ),
+    # "random_walk_search_random_edges": RandomWalkSearch(
+    #     solution_initializer=RandomSolutionGenerator(),
+    #     actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
+    # ),
+    # "random_walk_search_random_vertices": RandomWalkSearch(
+    #     solution_initializer=RandomSolutionGenerator(),
+    #     actions_generators=[
+    #         OutCycleVerticesSwapGenerator(),
+    #         InCycleVerticesSwapGenerator(),
+    #     ],
+    # ),
 }
 
 

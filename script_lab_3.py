@@ -27,18 +27,18 @@ from utils.visualization import visualize_graph
 
 from lab3.algorithms.candidate_moves import CandidateMoves
 
-N_INSTANCES = 1
+N_INSTANCES = 100
 DATA_DIR = "data"
 RESULT_DIR = io.directory("result/lab3")
-FILES = ["kroa200.tsp"]
+FILES = ["kroa200.tsp", "krob200.tsp"]
 
 SOLUTION_INITIALIZER = RandomSolutionGenerator()
 
 ALGORITHMS = {
-    # "Two Regret": TwoRegretSolutionGenerator(),
-    # "Steepest Search": SteepestSearch(actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
-    #                                   solution_initializer=SOLUTION_INITIALIZER),
-    # "Candidate Moves": CandidateMoves(solution_initializer=SOLUTION_INITIALIZER),
+    "Two Regret": TwoRegretSolutionGenerator(),
+    "Steepest Search": SteepestSearch(actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
+                                      solution_initializer=SOLUTION_INITIALIZER),
+    "Candidate Moves": CandidateMoves(solution_initializer=SOLUTION_INITIALIZER),
     "Steepest Search with memory": SteepestSearchWithMemory(solution_initializer=SOLUTION_INITIALIZER),
 }
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
                 if cycles_length < min_cycle_length:
                     min_cycle_length = cycles_length
                     best_solution = cycles
-                print(f"{name} {file_name} {cycles_length}")
+                # print(f"{name} {file_name} {cycles_length}")
 
             times.append(
                 (

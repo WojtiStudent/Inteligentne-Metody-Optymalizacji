@@ -70,38 +70,105 @@ class EdgesSwapGenerator:
     def get_new_actions(self, solution, distance_matrix, last_action):
         actions = []
 
-        # nodes_to_check = {"after": [last_action.i, last_action.j],
-        #                   "before": [last_action.next_i, last_action.next_j]}
+        if last_action.name == "swapEdgesInsideCycle":
+            i_index = solution[last_action.cycle_index].index(last_action.i)
+            j_index = solution[last_action.cycle_index].index(last_action.j)
 
-        index_i = solution[last_action.cycle_index].index(last_action.i)
-        index_next_i = solution[last_action.cycle_index].index(last_action.next_i)
-        index_j = solution[last_action.cycle_index].index(last_action.j)
-        index_next_j = solution[last_action.cycle_index].index(last_action.next_j)
-
-        nodes_to_check = {"after": solution[last_action.cycle_index][index_i : index_next_i + 1],
-                          "before": solution[last_action.cycle_index][index_j : index_next_j + 1]}
-
-        for change_type, node_list in nodes_to_check.items():
-            for node in node_list:
-                for cycle_node in solution[last_action.cycle_index]:
-                    if node != cycle_node:
-                        delta = calculate_delta(solution[last_action.cycle_index],
-                                                node,
-                                                cycle_node,
-                                                distance_matrix,
-                                                change_type)
-                        if delta < 0:
-                            actions.append(
-                                Action(
-                                    name="swapEdgesInsideCycle",
-                                    i=node,
-                                    j=cycle_node,
-                                    cycle_index=last_action.cycle_index,
-                                    delta=delta,
-                                    do=swap_edges_inside_cycle,
-                                    change_type=change_type,
-                                    next_i=last_action.next_i,
-                                    next_j=last_action.next_j,
-                                )
+            # vertexes which changed their status (position or neighbours)
+            if i_index > j_index:
+                i_index, j_index = j_index, i_index
+            if last_action.change_type == "after":
+                vertexes = solution[last_action.cycle_index][i_index + 1 : j_index + 1]
+                vertexes.append(solution[last_action.cycle_index][i_index])
+                vertexes.append(solution[last_action.cycle_index][(j_index + 2) % len(solution[last_action.cycle_index])])
+            elif last_action.change_type == "before":
+                vertexes = solution[last_action.cycle_index][i_index : j_index]
+                vertexes.append(solution[last_action.cycle_index][j_index])
+                vertexes.append(solution[last_action.cycle_index][(i_index - 1) % len(solution[last_action.cycle_index])])
+            
+            vertexes_unch = [i for i in solution[last_action.cycle_index] if i not in vertexes]
+            
+            for i, j in itertools.product(vertexes, solution[last_action.cycle_index]):
+                if i == j:
+                    continue
+                for change_type in ["after", "before"]:
+                    delta = calculate_delta(solution[last_action.cycle_index], i, j, distance_matrix, change_type)
+                    if change_type == "after":
+                        next_i = solution[last_action.cycle_index][(solution[last_action.cycle_index].index(i) + 1) % len(solution[last_action.cycle_index])]
+                        next_j = solution[last_action.cycle_index][(solution[last_action.cycle_index].index(j) + 1) % len(solution[last_action.cycle_index])]
+                    else:
+                        next_i = solution[last_action.cycle_index][(solution[last_action.cycle_index].index(i) - 1) % len(solution[last_action.cycle_index])]
+                        next_j = solution[last_action.cycle_index][(solution[last_action.cycle_index].index(j) - 1) % len(solution[last_action.cycle_index])]
+                    if delta < 0:
+                        actions.append(
+                            Action(
+                                name="swapEdgesInsideCycle",
+                                i=i,
+                                j=j,
+                                cycle_index=last_action.cycle_index,
+                                delta=delta,
+                                do=swap_edges_inside_cycle,
+                                change_type=change_type,
+                                next_i=next_i,
+                                next_j=next_j,
                             )
+                        )
+        else:
+            # leff changed nodes - all left nodes
+            vertexes_0 = [last_action.j, last_action.next_i, last_action.prev_i]
+            vertexes_1 = [last_action.i, last_action.next_j, last_action.prev_j]
+
+            for i,j in itertools.product(vertexes_0, solution[0]):
+                if i == j:
+                    continue
+                for change_type in ["after", "before"]:
+                    delta = calculate_delta(solution[0], i, j, distance_matrix, change_type)
+                    if change_type == "after":
+                        next_i = solution[0][(solution[0].index(i) + 1) % len(solution[0])]
+                        next_j = solution[0][(solution[0].index(j) + 1) % len(solution[0])]
+                    else:
+                        next_i = solution[0][(solution[0].index(i) - 1) % len(solution[0])]
+                        next_j = solution[0][(solution[0].index(j) - 1) % len(solution[0])]
+                    if delta < 0:
+                        actions.append(
+                            Action(
+                                name="swapEdgesInsideCycle",
+                                i=i,
+                                j=j,
+                                cycle_index=0,
+                                delta=delta,
+                                do=swap_edges_inside_cycle,
+                                change_type=change_type,
+                                next_i=next_i,
+                                next_j=next_j,
+                            )
+                        )
+            
+            for i,j in itertools.product(vertexes_1, solution[1]):
+                if i == j:
+                    continue
+                for change_type in ["after", "before"]:
+                    delta = calculate_delta(solution[1], i, j, distance_matrix, change_type)
+                    if change_type == "after":
+                        next_i = solution[1][(solution[1].index(i) + 1) % len(solution[1])]
+                        next_j = solution[1][(solution[1].index(j) + 1) % len(solution[1])]
+                    else:
+                        next_i = solution[1][(solution[1].index(i) - 1) % len(solution[1])]
+                        next_j = solution[1][(solution[1].index(j) - 1) % len(solution[1])]
+                    if delta < 0:
+                        actions.append(
+                            Action(
+                                name="swapEdgesInsideCycle",
+                                i=i,
+                                j=j,
+                                cycle_index=1,
+                                delta=delta,
+                                do=swap_edges_inside_cycle,
+                                change_type=change_type,
+                                next_i=next_i,
+                                next_j=next_j,
+                            )
+                        )
+
+
         return actions

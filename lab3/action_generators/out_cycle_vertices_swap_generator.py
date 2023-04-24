@@ -41,7 +41,13 @@ class OutCycleVerticesSwapGenerator:
         possible_pairs = itertools.product(solution[0], solution[1])
         for i, j in possible_pairs:
             delta = calculate_delta(solution, i, j, distance_matrix)
-            if i != j and delta < 0:
+            if delta < 0:
+                i_index = solution[0].index(i)
+                j_index = solution[1].index(j)
+                next_i = solution[0][(i_index + 1) % len(solution[0])]
+                next_j = solution[1][(j_index + 1) % len(solution[1])]
+                prev_i = solution[0][(i_index - 1) % len(solution[0])]
+                prev_j = solution[1][(j_index - 1) % len(solution[1])]
                 actions.append(
                     Action(
                         name="swapVerticesOutsideCycle",
@@ -50,35 +56,140 @@ class OutCycleVerticesSwapGenerator:
                         cycle_index=-1,
                         delta=delta,
                         do=swap_vertices_outside_cycle,
+                        next_i=next_i,
+                        next_j=next_j,
+                        prev_i=prev_i,
+                        prev_j=prev_j,
                     )
                 )
         return actions
 
     @staticmethod
     def get_new_actions(solution, distance_matrix, last_action):
-        print(last_action)
-        print(solution)
 
         actions = []
-        for node in [last_action.i, last_action.j]:
-            other_cycle_index = 0 if node not in solution[0] else 1
-            for cycle_node in solution[other_cycle_index]:
 
-                processed_node = node
-                processed_cycle_node = cycle_node
-                if other_cycle_index == 0:
-                    processed_node, processed_cycle_node = processed_cycle_node, processed_node
-
-                delta = calculate_delta(solution, processed_node, processed_cycle_node, distance_matrix)
-                if node != cycle_node and delta < 0:
+        if last_action.name == "swapVerticesOutsideCycle":
+            # leff changed nodes - all right nodes
+            vertexes_0 = [last_action.j, last_action.next_i, last_action.prev_i]
+            vertexes_1 = [last_action.i, last_action.next_j, last_action.prev_j]
+            
+            for i, j in itertools.product(vertexes_0, solution[1]):
+                delta = calculate_delta(solution, i, j, distance_matrix)
+                if delta < 0:
+                    i_index = solution[0].index(i)
+                    j_index = solution[1].index(j)
+                    next_i = solution[0][(i_index + 1) % len(solution[0])]
+                    next_j = solution[1][(j_index + 1) % len(solution[1])]
+                    prev_i = solution[0][(i_index - 1) % len(solution[0])]
+                    prev_j = solution[1][(j_index - 1) % len(solution[1])]
                     actions.append(
                         Action(
                             name="swapVerticesOutsideCycle",
-                            i=processed_node,
-                            j=processed_cycle_node,
+                            i=i,
+                            j=j,
                             cycle_index=-1,
                             delta=delta,
                             do=swap_vertices_outside_cycle,
+                            next_i=next_i,
+                            next_j=next_j,
+                            prev_i=prev_i,
+                            prev_j=prev_j,
                         )
                     )
+
+            # left unchanged nodes - right changed nodes
+            for i, j in itertools.product(solution[0], vertexes_1):
+                if i in vertexes_0:
+                    continue
+                delta = calculate_delta(solution, i, j, distance_matrix)
+                if delta < 0:
+                    i_index = solution[0].index(i)
+                    j_index = solution[1].index(j)
+                    next_i = solution[0][(i_index + 1) % len(solution[0])]
+                    next_j = solution[1][(j_index + 1) % len(solution[1])]
+                    prev_i = solution[0][(i_index - 1) % len(solution[0])]
+                    prev_j = solution[1][(j_index - 1) % len(solution[1])]
+                    actions.append(
+                        Action(
+                            name="swapVerticesOutsideCycle",
+                            i=i,
+                            j=j,
+                            cycle_index=-1,
+                            delta=delta,
+                            do=swap_vertices_outside_cycle,
+                            next_i=next_i,
+                            next_j=next_j,
+                            prev_i=prev_i,
+                            prev_j=prev_j,
+                        )
+                    )
+        else:
+            i_index = solution[last_action.cycle_index].index(last_action.i)
+            j_index = solution[last_action.cycle_index].index(last_action.j)
+
+            # vertexes which changed their status (position or neighbours)
+            if i_index > j_index:
+                i_index, j_index = j_index, i_index
+            if last_action.change_type == "after":
+                vertexes = solution[last_action.cycle_index][i_index + 1 : j_index + 1]
+                vertexes.append(solution[last_action.cycle_index][i_index])
+                vertexes.append(solution[last_action.cycle_index][(j_index + 2) % len(solution[last_action.cycle_index])])
+            elif last_action.change_type == "before":
+                vertexes = solution[last_action.cycle_index][i_index : j_index]
+                vertexes.append(solution[last_action.cycle_index][j_index])
+                vertexes.append(solution[last_action.cycle_index][(i_index - 1) % len(solution[last_action.cycle_index])])
+
+            if last_action.cycle_index == 0:
+                # left changed nodes - all right nodes
+                for i, j in itertools.product(vertexes, solution[1]):
+                    delta = calculate_delta(solution, i, j, distance_matrix)
+                    if delta < 0:
+                        i_index = solution[0].index(i)
+                        j_index = solution[1].index(j)
+                        next_i = solution[0][(i_index + 1) % len(solution[0])]
+                        next_j = solution[1][(j_index + 1) % len(solution[1])]
+                        prev_i = solution[0][(i_index - 1) % len(solution[0])]
+                        prev_j = solution[1][(j_index - 1) % len(solution[1])]
+                        actions.append(
+                            Action(
+                                name="swapVerticesOutsideCycle",
+                                i=i,
+                                j=j,
+                                cycle_index=-1,
+                                delta=delta,
+                                do=swap_vertices_outside_cycle,
+                                next_i=next_i,
+                                next_j=next_j,
+                                prev_i=prev_i,
+                                prev_j=prev_j,
+                            )
+                        )
+                
+            else:
+                # all left nodes - right changed nodes
+                for i, j in itertools.product(solution[0], vertexes):
+                    delta = calculate_delta(solution, i, j, distance_matrix)
+                    if delta < 0:
+                        i_index = solution[0].index(i)
+                        j_index = solution[1].index(j)
+                        next_i = solution[0][(i_index + 1) % len(solution[0])]
+                        next_j = solution[1][(j_index + 1) % len(solution[1])]
+                        prev_i = solution[0][(i_index - 1) % len(solution[0])]
+                        prev_j = solution[1][(j_index - 1) % len(solution[1])]
+                        actions.append(
+                            Action(
+                                name="swapVerticesOutsideCycle",
+                                i=i,
+                                j=j,
+                                cycle_index=-1,
+                                delta=delta,
+                                do=swap_vertices_outside_cycle,
+                                next_i=next_i,
+                                next_j=next_j,
+                                prev_i=prev_i,
+                                prev_j=prev_j,
+                            )
+                        )
+
         return actions

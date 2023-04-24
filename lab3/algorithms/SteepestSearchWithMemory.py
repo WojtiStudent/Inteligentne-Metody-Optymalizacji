@@ -19,30 +19,41 @@ class SteepestSearchWithMemory:
 
 
     @staticmethod
-    def get_node_info(node, solution):
+    def get_node_cycle(node, solution):
         cycle = 0 if node in solution[0] else 1
         return cycle
 
     def is_doable(self, action, solution):
-        i_cycle = self.get_node_info(action.i, solution)
-        j_cycle = self.get_node_info(action.j, solution)
+        i_cycle = self.get_node_cycle(action.i, solution)
+        j_cycle = self.get_node_cycle(action.j, solution)
 
         if action.name == "swapVerticesOutsideCycle":
-            if i_cycle != j_cycle:
-                return "DOABLE"
+            if i_cycle == 0 and j_cycle == 1:
+                next_i = solution[i_cycle][(solution[i_cycle].index(action.i) + 1) % len(solution[i_cycle])]
+                next_j = solution[j_cycle][(solution[j_cycle].index(action.j) + 1) % len(solution[j_cycle])]
+                prev_i = solution[i_cycle][(solution[i_cycle].index(action.i) - 1) % len(solution[i_cycle])]
+                prev_j = solution[j_cycle][(solution[j_cycle].index(action.j) - 1) % len(solution[j_cycle])]
+
+                if ((action.next_i == next_i and action.prev_i == prev_i) or (action.next_i == prev_i and action.prev_i == next_i)) and\
+                    ((action.next_j == next_j and action.prev_j == prev_j) or (action.next_j == prev_j and action.prev_j == next_j)):
+                    return "DOABLE"
+                else:
+                    return "NOT_DOABLE"
             else:
                 return "NOT_DOABLE"
         elif action.name == "swapEdgesInsideCycle":
-            if i_cycle == j_cycle:
+
+            if i_cycle == j_cycle == action.cycle_index:
+
                 next_i = solution[i_cycle][(solution[i_cycle].index(action.i) + 1) % len(solution[i_cycle])]
                 next_j = solution[j_cycle][(solution[j_cycle].index(action.j) + 1) % len(solution[j_cycle])]
 
                 previous_i = solution[i_cycle][(solution[i_cycle].index(action.i) - 1) % len(solution[i_cycle])]
                 previous_j = solution[j_cycle][(solution[j_cycle].index(action.j) - 1) % len(solution[j_cycle])]
                 
-                if action.next_i == next_i and action.next_j == next_j:
+                if action.next_i == next_i and action.next_j == next_j: # to change?
                     return "DOABLE"
-                elif action.next_i == previous_i and action.next_j == previous_j:
+                elif action.next_i == previous_i or action.next_j == previous_j:
                     return "MAYBE"
                 else:
                     return "NOT_DOABLE"
@@ -51,26 +62,9 @@ class SteepestSearchWithMemory:
 
     def get_new_possible_actions(self, solution, distance_matrix, last_action, possible_actions):
         new_possible_actions = []
-        if last_action.name == "swapVerticesOutsideCycle":
-            new_possible_actions += self.action_generators[0].get_new_actions(solution, distance_matrix, last_action)
+        for generator in self.action_generators:
+            new_possible_actions += generator.get_new_actions(solution, distance_matrix, last_action)
 
-            for action in possible_actions:
-                new_action = copy.deepcopy(action)
-                if new_action.name == "swapEdgesInsideCycle":
-                    if new_action.i == last_action.i:
-                        new_action.i = last_action.j
-                    elif new_action.i == last_action.j:
-                        new_action.i = last_action.i
-                    elif new_action.j == last_action.i:
-                        new_action.j = last_action.j
-                    elif new_action.j == last_action.j:
-                        new_action.j = last_action.i
-
-                    new_possible_actions.append(new_action)
-
-
-        elif last_action.name == "swapEdgesInsideCycle":
-            new_possible_actions = self.action_generators[1].get_new_actions(solution, distance_matrix, last_action)
         return new_possible_actions
 
     def __call__(self, distance_matrix):
@@ -78,11 +72,10 @@ class SteepestSearchWithMemory:
         possible_actions = self.get_possible_actions(solution, distance_matrix)
 
         while possible_actions:
-            print(solution)
-            print(possible_actions[:3])
-
-
             last_action = None
+
+
+            indices_to_pop = []
             for i, action in enumerate(possible_actions):
                 is_doable_flag = self.is_doable(action, solution)
                 if is_doable_flag == "DOABLE":
@@ -93,9 +86,12 @@ class SteepestSearchWithMemory:
                     last_action = action
                     break
                 elif is_doable_flag == "NOT_DOABLE":
-                    possible_actions.pop(i)
+                    indices_to_pop.append(i)
                 elif is_doable_flag == "MAYBE":
                     pass
+            # reversed, because we do not want to change indices of elements to delete
+            for i in reversed(indices_to_pop):
+                possible_actions.pop(i)
 
             if last_action:
                 possible_actions += self.get_new_possible_actions(solution,
@@ -105,5 +101,6 @@ class SteepestSearchWithMemory:
                 possible_actions = sorted(possible_actions, key=lambda action: action.delta)
             else:
                 break
+        
 
         return solution
