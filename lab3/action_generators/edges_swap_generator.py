@@ -86,8 +86,6 @@ class EdgesSwapGenerator:
                 vertexes.append(solution[last_action.cycle_index][j_index])
                 vertexes.append(solution[last_action.cycle_index][(i_index - 1) % len(solution[last_action.cycle_index])])
             
-            vertexes_unch = [i for i in solution[last_action.cycle_index] if i not in vertexes]
-            
             for i, j in itertools.product(vertexes, solution[last_action.cycle_index]):
                 if i == j:
                     continue
