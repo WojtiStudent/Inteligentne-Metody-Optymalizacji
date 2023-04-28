@@ -18,16 +18,20 @@ from utils.scoring import get_cycle_length
 from utils.visualization import visualize_graph
 
 from lab4.algorithms.MSLS import MSLS
+from lab4.algorithms.ILS import ILS
 
-N_INSTANCES = 10
+N_INSTANCES = 1
 DATA_DIR = "data"
 RESULT_DIR = io.directory("result/lab3")
 FILES = ["kroa200.tsp", "krob200.tsp"]
 
 SOLUTION_INITIALIZER = RandomSolutionGenerator()
+ILS_LIFE_SPAN = 220 # mean time of MSLS
 
 ALGORITHMS = {
     "MSLS": MSLS(solution_initializer=SOLUTION_INITIALIZER),
+    "ILS2": ILS(solution_initializer=SOLUTION_INITIALIZER, lifespan=ILS_LIFE_SPAN, no=2),
+    "ILS1": ILS(solution_initializer=SOLUTION_INITIALIZER, lifespan=ILS_LIFE_SPAN, no=1),
 }
 
 if __name__ == "__main__":
@@ -73,7 +77,6 @@ if __name__ == "__main__":
                 if cycles_length < min_cycle_length:
                     min_cycle_length = cycles_length
                     best_solution = cycles
-                # print(f"{name} {file_name} {cycles_length}")
 
             times.append(
                 (
