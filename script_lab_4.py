@@ -20,18 +20,19 @@ from utils.visualization import visualize_graph
 from lab4.algorithms.MSLS import MSLS
 from lab4.algorithms.ILS import ILS
 
-N_INSTANCES = 1
+N_INSTANCES = 10
 DATA_DIR = "data"
 RESULT_DIR = io.directory("result/lab3")
 FILES = ["kroa200.tsp", "krob200.tsp"]
 
-SOLUTION_INITIALIZER = RandomSolutionGenerator()
-ILS_LIFE_SPAN = 220 # mean time of MSLS
+SOLUTION_INITIALIZER = TwoRegretSolutionGenerator() #RandomSolutionGenerator()
+ILS_LIFE_SPAN = 28 # 28 for two regret | 220 for random
 
 ALGORITHMS = {
     "MSLS": MSLS(solution_initializer=SOLUTION_INITIALIZER),
-    "ILS2": ILS(solution_initializer=SOLUTION_INITIALIZER, lifespan=ILS_LIFE_SPAN, no=2),
     "ILS1": ILS(solution_initializer=SOLUTION_INITIALIZER, lifespan=ILS_LIFE_SPAN, no=1),
+    "ILS2": ILS(solution_initializer=SOLUTION_INITIALIZER, lifespan=ILS_LIFE_SPAN, no=2, with_local_search=False),
+    "ILS2a": ILS(solution_initializer=SOLUTION_INITIALIZER, lifespan=ILS_LIFE_SPAN, no=2, with_local_search=True),
 }
 
 if __name__ == "__main__":

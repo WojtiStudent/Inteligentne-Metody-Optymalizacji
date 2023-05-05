@@ -68,7 +68,10 @@ class SteepestSearchWithMemory:
         return new_possible_actions
 
     def __call__(self, distance_matrix):
-        solution = self.solution_initializer(distance_matrix)
+        if isinstance(self.solution_initializer, list): 
+            solution = self.solution_initializer
+        else:
+            solution = self.solution_initializer(distance_matrix)
         possible_actions = self.get_possible_actions(solution, distance_matrix)
 
         while possible_actions:
