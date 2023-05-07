@@ -1,4 +1,7 @@
 import os
+from functools import partial
+from multiprocessing import Pool
+
 import matplotlib as plt
 
 plt.rcParams.update({"figure.max_open_warning": 0})
@@ -20,13 +23,13 @@ from utils.visualization import visualize_graph
 from lab4.algorithms.MSLS import MSLS
 from lab4.algorithms.ILS import ILS
 
-N_INSTANCES = 2
+N_INSTANCES = 8
 DATA_DIR = "data"
 RESULT_DIR = io.directory("result/lab4")
-FILES = ["kroa200.tsp", "krob200.tsp"]
+FILES = ["krob200.tsp"]
 
 SOLUTION_INITIALIZER = RandomSolutionGenerator()
-ILS_LIFE_SPAN = 220 # 30 for two regret | 220 for random
+ILS_LIFE_SPAN = 330 # 28 for two regret | 220 for random
 
 ALGORITHMS = {
     "MSLS": MSLS(solution_initializer=SOLUTION_INITIALIZER),
@@ -34,6 +37,15 @@ ALGORITHMS = {
     "ILS2": ILS(solution_initializer=SOLUTION_INITIALIZER, lifespan=ILS_LIFE_SPAN, no=2, with_local_search=True),
     "ILS2a": ILS(solution_initializer=SOLUTION_INITIALIZER, lifespan=ILS_LIFE_SPAN, no=2, with_local_search=False),
 }
+
+
+def run_algorithm(i, algorithm, distance_graph):
+    start = time.time()
+    cycles = algorithm(distance_graph)
+    cycles_length = sum([get_cycle_length(distance_graph, cycle) for cycle in cycles])
+    end = time.time() - start
+    return {"cycles": cycles, "length": cycles_length, "time": end}
+
 
 if __name__ == "__main__":
     loaded_files = {f: io.load_data(os.path.join(DATA_DIR, f), 6) for f in FILES}
@@ -60,29 +72,37 @@ if __name__ == "__main__":
         # Run the algorithm for each file
         for file_name, distance_graph in distance_graphs.items():
             file_names += [file_name] * N_INSTANCES
-            min_cycle_length = np.inf
-            best_solution = None
             local_times = []
 
             # Run the algorithm N_INSTANCES times
-            for i in tqdm.tqdm(range(N_INSTANCES), desc=f"{name} {file_name}"):
-                start = time.time()
-                cycles = algorithm(distance_graph)
-                local_times.append(time.time() - start)
-                cycles_length = sum(
-                    [get_cycle_length(distance_graph, cycle) for cycle in cycles]
+            with Pool(4) as p:
+                cycles = list(
+                    tqdm.tqdm(
+                        p.imap(
+                            partial(
+                                run_algorithm,
+                                algorithm=algorithm,
+                                distance_graph=distance_graph,
+                            ),
+                            range(N_INSTANCES),
+                        ),
+                        desc=f"{name} {file_name}",
+                    )
                 )
-                algorithm_results.append(cycles_length)
 
-                # Save the best solution
-                if cycles_length < min_cycle_length:
-                    min_cycle_length = cycles_length
-                    best_solution = cycles
+            best_cycle = min(cycles, key=lambda cycle: cycle["length"])
+            best_solution = best_cycle["cycles"]
+            best_cycle_length = best_cycle["length"]
+
+            algorithm_results += [cycle["length"] for cycle in cycles]
+            min_cycle_length = min(algorithm_results)
+
+            algorithm_times = [cycle["time"] for cycle in cycles]
 
             times.append(
                 (
                     f"{name}_{file_name}",
-                    f"{round(np.mean(local_times), 3)}({round(min(local_times), 3)} - {round(max(local_times), 3)})",
+                    f"{round(np.mean(algorithm_times), 3)}({round(min(algorithm_times), 3)} - {round(max(algorithm_times), 3)})",
                 )
             )
             best_algorithm_solutions[file_name] = best_solution
