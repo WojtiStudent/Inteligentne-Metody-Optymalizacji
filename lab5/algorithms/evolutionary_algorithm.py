@@ -30,6 +30,8 @@ class EvolutionaryAlgorithm:
     def _recombine(self, parent1_solution, parent2_solution, distance_matrix):
         new_solution = deepcopy(parent1_solution)
 
+        remaining = []
+
         # check for the same edges in both parent solutions
         for i_cycle, cycle1 in enumerate(parent1_solution):
             for i in range(len(cycle1)):
@@ -45,6 +47,7 @@ class EvolutionaryAlgorithm:
                             break
                 if not in_both_cycles:
                     new_solution[i_cycle][i] = new_solution[i_cycle][(i + 1) % len(cycle1)] = -1
+                    remaining.extend([v1, v2])
         
         # check for vertices without edges
         for i_cycle, cycle in enumerate(new_solution):
@@ -52,16 +55,25 @@ class EvolutionaryAlgorithm:
                 prev, curr, next = cycle[i - 1], cycle[i], cycle[(i + 1) % len(cycle)]
                 if prev == next == -1 and curr != -1:
                     new_solution[i_cycle][i] = -1
+                    remaining.append(curr)
 
         # mutations
         for i_cycle, cycle in enumerate(new_solution):
             for i in range(len(cycle)):
                 if cycle[i] != -1 and random.random() < self.vertex_mutation_chance:
                     new_solution[i_cycle][i] = -1
+                    remaining.append(cycle[i])
         
         # delete marked vertices
         for i_cycle, cycle in enumerate(new_solution):
             new_solution[i_cycle] = [v for v in cycle if v != -1]
+
+        # sanity check: add random vertex to cycle without vertex
+        for i_cycle, cycle in enumerate(new_solution):
+            if len(cycle) == 0:
+                chosen = random.choice(remaining)
+                remaining.remove(chosen)
+                new_solution[i_cycle].append(chosen)
 
         # rebuild cycles with heuristic algorithm
         new_solution = self.heuristic_algorithm(distance_matrix, new_solution)
@@ -70,6 +82,8 @@ class EvolutionaryAlgorithm:
 
     def __call__(self, distance_matrix):
         start = time.time()
+
+        self.n_iters = 0
 
         # initialize population
         population = []
@@ -85,6 +99,8 @@ class EvolutionaryAlgorithm:
         worst_score, worst_solution = population[worst_unit_index]
 
         while time.time() - start < self.max_time:
+            self.n_iters += 1
+
             # select parents
             parent1, parent2 = random.sample(population, 2)
             parent1_solution, parent2_solution = parent1[1], parent2[1]

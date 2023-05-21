@@ -22,14 +22,15 @@ from lab5.algorithms.evolutionary_algorithm import EvolutionaryAlgorithm
 N_INSTANCES = 1
 DATA_DIR = "data"
 RESULT_DIR = io.directory("result/lab5")
-FILES = ["kroa200.tsp", "krob200.tsp"]
+# FILES = ["kroa200.tsp", "krob200.tsp"]
+FILES = ["kroa100.tsp"]
 
 SOLUTION_INITIALIZER = RandomSolutionGenerator()
-EVO_LIFE_SPAN = 100 # 30 for two regret | 220 for random
+EVO_LIFE_SPAN = 30 # 30 for two regret | 220 for random
 
 ALGORITHMS = {
     "EVO": EvolutionaryAlgorithm(max_time=EVO_LIFE_SPAN, solution_initializer=SOLUTION_INITIALIZER),
-    "EVO+LS": EvolutionaryAlgorithm(max_time=EVO_LIFE_SPAN, solution_initializer=SOLUTION_INITIALIZER, ls_on_new_solution=True),
+    # "EVO+LS": EvolutionaryAlgorithm(max_time=EVO_LIFE_SPAN, solution_initializer=SOLUTION_INITIALIZER, ls_on_new_solution=True),
 }
 
 if __name__ == "__main__":
@@ -48,6 +49,9 @@ if __name__ == "__main__":
 
     times: List[Tuple[str, str]] = []
 
+    iters: List[Tuple[str, str]] = []
+
+
     # Run each algorithm
     for name, algorithm in ALGORITHMS.items():
         algorithm_results = []
@@ -60,12 +64,14 @@ if __name__ == "__main__":
             min_cycle_length = np.inf
             best_solution = None
             local_times = []
+            local_iters = []
 
             # Run the algorithm N_INSTANCES times
             for i in tqdm.tqdm(range(N_INSTANCES), desc=f"{name} {file_name}"):
                 start = time.time()
                 cycles = algorithm(distance_graph)
                 local_times.append(time.time() - start)
+                local_iters.append(algorithm.n_iters)
                 cycles_length = sum(
                     [get_cycle_length(distance_graph, cycle) for cycle in cycles]
                 )
@@ -82,6 +88,14 @@ if __name__ == "__main__":
                     f"{round(np.mean(local_times), 3)}({round(min(local_times), 3)} - {round(max(local_times), 3)})",
                 )
             )
+
+            iters.append(
+                (
+                    f"{name}_{file_name}",
+                    f"{round(np.mean(local_iters), 3)}({min(local_iters)} - {max(local_iters)})",
+                )
+            )
+
             best_algorithm_solutions[file_name] = best_solution
             visualize_graph(
                 best_solution,
@@ -110,3 +124,10 @@ if __name__ == "__main__":
         algorithm_name = "_".join(tmp[:-1])
         print(algorithm_name)
         print(f"\tFile: {file_name}  | Time: {i[1]}")
+
+    for i in iters:
+        tmp = i[0].split("_")
+        file_name = tmp[-1]
+        algorithm_name = "_".join(tmp[:-1])
+        print(algorithm_name)
+        print(f"\tFile: {file_name}  | Iters: {i[1]}")
