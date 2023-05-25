@@ -19,18 +19,18 @@ from utils.visualization import visualize_graph
 
 from lab5.algorithms.evolutionary_algorithm import EvolutionaryAlgorithm
 
-N_INSTANCES = 1
+N_INSTANCES = 10
 DATA_DIR = "data"
 RESULT_DIR = io.directory("result/lab5")
 # FILES = ["kroa200.tsp", "krob200.tsp"]
-FILES = ["kroa100.tsp"]
+FILES = ["krob200.tsp"]
 
 SOLUTION_INITIALIZER = RandomSolutionGenerator()
-EVO_LIFE_SPAN = 30 # 30 for two regret | 220 for random
+EVO_LIFE_SPAN = 300 # 30 for two regret | 220 for random
 
 ALGORITHMS = {
     "EVO": EvolutionaryAlgorithm(max_time=EVO_LIFE_SPAN, solution_initializer=SOLUTION_INITIALIZER),
-    # "EVO+LS": EvolutionaryAlgorithm(max_time=EVO_LIFE_SPAN, solution_initializer=SOLUTION_INITIALIZER, ls_on_new_solution=True),
+    "EVO+LS": EvolutionaryAlgorithm(max_time=EVO_LIFE_SPAN, solution_initializer=SOLUTION_INITIALIZER, ls_on_new_solution=True),
 }
 
 if __name__ == "__main__":

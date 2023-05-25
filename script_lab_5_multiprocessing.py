@@ -26,7 +26,8 @@ N_INSTANCES = 10
 DATA_DIR = "data"
 RESULT_DIR = io.directory("result/lab5")
 # FILES = ["kroa200.tsp", "krob200.tsp"]
-FILES = ["kroa100.tsp", "krob100.tsp"]
+FILES = ["krob200.tsp"]
+
 
 SOLUTION_INITIALIZER = RandomSolutionGenerator()
 EVO_LIFE_SPAN = 300 # 30 for two regret | 220 for random
