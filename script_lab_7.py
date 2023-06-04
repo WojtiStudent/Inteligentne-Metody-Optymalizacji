@@ -1,7 +1,4 @@
 import os
-from functools import partial
-from multiprocessing import Pool
-
 import matplotlib as plt
 
 plt.rcParams.update({"figure.max_open_warning": 0})
@@ -20,32 +17,20 @@ from lab2.solution_initializers import (
 from utils.scoring import get_cycle_length
 from utils.visualization import visualize_graph
 
-from lab5.algorithms.evolutionary_algorithm import EvolutionaryAlgorithm
+from lab7.algorithms.evolutionary_algorithm import EvolutionaryIslandAlgorithm
 
 N_INSTANCES = 10
 DATA_DIR = "data"
-RESULT_DIR = io.directory("result/lab5")
-# FILES = ["kroa200.tsp", "krob200.tsp"]
-FILES = ["kroa200.tsp"]
+RESULT_DIR = io.directory("result/lab7")
+FILES = ["kroa200.tsp", "krob200.tsp"]
 
 
 SOLUTION_INITIALIZER = RandomSolutionGenerator()
-EVO_LIFE_SPAN = 300 # 30 for two regret | 220 for random
+EVO_LIFE_SPAN = 300 
 
 ALGORITHMS = {
-    "EVO": EvolutionaryAlgorithm(max_time=EVO_LIFE_SPAN, solution_initializer=SOLUTION_INITIALIZER, patience=float("inf")),
-    "EVO+LS": EvolutionaryAlgorithm(max_time=EVO_LIFE_SPAN, solution_initializer=SOLUTION_INITIALIZER, ls_on_new_solution=True, patience=float("inf")),
+    "HybridIsland": EvolutionaryIslandAlgorithm(max_time=EVO_LIFE_SPAN, solution_initializer=SOLUTION_INITIALIZER, ls_on_new_solution=True, patience=float("inf")),
 }
-
-
-def run_algorithm(i, algorithm, distance_graph):
-    start = time.time()
-    cycles = algorithm(distance_graph)
-    cycles_length = sum([get_cycle_length(distance_graph, cycle) for cycle in cycles])
-    iters = algorithm.n_iters
-    end = time.time() - start
-    return {"cycles": cycles, "length": cycles_length, "time": end, "iters": iters}
-
 
 if __name__ == "__main__":
     loaded_files = {f: io.load_data(os.path.join(DATA_DIR, f), 6) for f in FILES}
@@ -75,39 +60,31 @@ if __name__ == "__main__":
         # Run the algorithm for each file
         for file_name, distance_graph in distance_graphs.items():
             file_names += [file_name] * N_INSTANCES
+            min_cycle_length = np.inf
+            best_solution = None
+            local_times = []
+            local_iters = []
 
             # Run the algorithm N_INSTANCES times
-            with Pool(6) as p:
-                cycles = list(
-                    tqdm.tqdm(
-                        p.imap(
-                            partial(
-                                run_algorithm,
-                                algorithm=algorithm,
-                                distance_graph=distance_graph,
-                            ),
-                            range(N_INSTANCES),
-                        ),
-                        desc=f"{name} {file_name}",
-                    )
+            for i in tqdm.tqdm(range(N_INSTANCES), desc=f"{name} {file_name}"):
+                start = time.time()
+                cycles = algorithm(distance_graph)
+                local_times.append(time.time() - start)
+                local_iters.append(algorithm.n_iters)
+                cycles_length = sum(
+                    [get_cycle_length(distance_graph, cycle) for cycle in cycles]
                 )
+                algorithm_results.append(cycles_length)
 
-            best_cycle = min(cycles, key=lambda cycle: cycle["length"])
-            best_solution = best_cycle["cycles"]
-            best_cycle_length = best_cycle["length"]
-            best_cycle_iters = best_cycle["iters"]
-
-            algorithm_results += [cycle["length"] for cycle in cycles]
-            min_cycle_length = min(algorithm_results)
-
-            algorithm_times = [cycle["time"] for cycle in cycles]
-
-            local_iters = [cycle["iters"] for cycle in cycles]
+                # Save the best solution
+                if cycles_length < min_cycle_length:
+                    min_cycle_length = cycles_length
+                    best_solution = cycles
 
             times.append(
                 (
                     f"{name}_{file_name}",
-                    f"{round(np.mean(algorithm_times), 3)}({round(min(algorithm_times), 3)} - {round(max(algorithm_times), 3)})",
+                    f"{round(np.mean(local_times), 3)}({round(min(local_times), 3)} - {round(max(local_times), 3)})",
                 )
             )
 
@@ -122,7 +99,7 @@ if __name__ == "__main__":
             visualize_graph(
                 best_solution,
                 loaded_files[file_name],
-                f"{RESULT_DIR}/{'_'.join(name.split())}_{file_name.split('.')[0]}_{min_cycle_length}_{best_cycle_iters}.png",
+                f"{RESULT_DIR}/{'_'.join(name.split())}_{file_name.split('.')[0]}_{min_cycle_length}.png",
             )
 
         results[name] = pd.DataFrame(
