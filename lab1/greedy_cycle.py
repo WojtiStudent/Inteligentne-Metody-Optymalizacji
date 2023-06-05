@@ -44,18 +44,18 @@ def get_next_node(distance_matrix: np.array, visited_nodes: List[List[int]],
     return insert_place, possible_nodes_indexes[index_col]
 
 
-def tcp_greedy_cycle(distance_matrix: np.ndarray) -> List[List[int]]:
+def tcp_greedy_cycle(distance_matrix: np.ndarray, solution: List[List[int]] = None) -> List[List[int]]:
     """
     Get two graphs with minimum distance between them using greedy algorithm
     :param distance_matrix: matrix of distances between nodes
     :return: list of two graphs with minimum distance in cycles
     """
     n = len(distance_matrix)
-    visited_nodes = get_init_nodes(distance_matrix)
-    n_visited = 2
+    visited_nodes = solution if solution is not None else get_init_nodes(distance_matrix)
+    n_visited = len(visited_nodes[0] + visited_nodes[1])
 
     while n_visited < n:
-        cur_graph_index = n_visited % 2
+        cur_graph_index = np.argmin([len(x) for x in visited_nodes])
         insert_place, next_node = get_next_node(distance_matrix, visited_nodes, cur_graph_index)
         visited_nodes[cur_graph_index].insert(insert_place, next_node)
         n_visited += 1

@@ -128,20 +128,6 @@ class EvolutionaryAlgorithm:
             else:
                 iterations_without_improvement += 1
 
-            ## dabliu ei dabliu ei dabliu ei WAY to update population
-            # if new_solution_score < best_score:
-            #     best_unit_index = np.argmin([x[0] for x in population])
-            #     best_score, best_solution = new_solution_score, new_solution
-            #     population[best_unit_index] = (new_solution_score, new_solution)
-            #     iterations_without_improvement = 0
-            # elif not too_similar and new_solution_score < worst_score:
-            #     worst_unit_index = np.argmax([x[0] for x in population])
-            #     worst_score, worst_solution = new_solution_score, new_solution
-            #     population[worst_unit_index] = (new_solution_score, new_solution)
-            #     iterations_without_improvement += 1
-            # else:
-            #     iterations_without_improvement += 1
-
             if iterations_without_improvement == self.patience:
                 break
         
