@@ -26,80 +26,14 @@ from utils.visualization import visualize_graph
 N_INSTANCES = 100
 DATA_DIR = "data"
 RESULT_DIR = io.directory("result/lab2")
-FILES = ["kroa100.tsp", "krob100.tsp"]
+FILES = ["kroa200.tsp", "krob100.tsp"]
 ALGORITHMS = {
-    "random_solution_base": GreedySearch(
-        solution_initializer=RandomSolutionGenerator(), actions_generators=[]
-    ),
-    "two_regret_solution_base": GreedySearch(
-        solution_initializer=TwoRegretSolutionGenerator(), actions_generators=[]
-    ),
-    "greedy_search_two_regret_edges": GreedySearch(
-        solution_initializer=TwoRegretSolutionGenerator(),
-        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
-    ),
-    "greedy_search_two_regret_vertices": GreedySearch(
-        solution_initializer=TwoRegretSolutionGenerator(),
-        actions_generators=[
-            OutCycleVerticesSwapGenerator(),
-            InCycleVerticesSwapGenerator(),
-        ],
-    ),
+   
     "greedy_search_random_edges": GreedySearch(
         solution_initializer=RandomSolutionGenerator(),
         actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
     ),
-    "greedy_search_random_vertices": GreedySearch(
-        solution_initializer=RandomSolutionGenerator(),
-        actions_generators=[
-            OutCycleVerticesSwapGenerator(),
-            InCycleVerticesSwapGenerator(),
-        ],
-    ),
-    "steepest_search_two_regret_edges": SteepestSearch(
-        solution_initializer=TwoRegretSolutionGenerator(),
-        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
-    ),
-    "steepest_search_two_regret_vertices": SteepestSearch(
-        solution_initializer=TwoRegretSolutionGenerator(),
-        actions_generators=[
-            OutCycleVerticesSwapGenerator(),
-            InCycleVerticesSwapGenerator(),
-        ],
-    ),
-    "steepest_search_random_edges": SteepestSearch(
-        solution_initializer=RandomSolutionGenerator(),
-        actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
-    ),
-    "steepest_search_random_vertices": SteepestSearch(
-        solution_initializer=RandomSolutionGenerator(),
-        actions_generators=[
-            OutCycleVerticesSwapGenerator(),
-            InCycleVerticesSwapGenerator(),
-        ],
-    ),
-    # "random_walk_search_two_regret_edges": RandomWalkSearch(
-    #     solution_initializer=TwoRegretSolutionGenerator(),
-    #     actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
-    # ),
-    # "random_walk_search_two_regret_vertices": RandomWalkSearch(
-    #     solution_initializer=TwoRegretSolutionGenerator(),
-    #     actions_generators=[
-    #         OutCycleVerticesSwapGenerator(),
-    #         InCycleVerticesSwapGenerator(),
-    #     ],
-    # ),
-    # "random_walk_search_random_edges": RandomWalkSearch(
-    #     solution_initializer=RandomSolutionGenerator(),
-    #     actions_generators=[OutCycleVerticesSwapGenerator(), EdgesSwapGenerator()],
-    # ),
-    # "random_walk_search_random_vertices": RandomWalkSearch(
-    #     solution_initializer=RandomSolutionGenerator(),
-    #     actions_generators=[
-    #         OutCycleVerticesSwapGenerator(),
-    #         InCycleVerticesSwapGenerator(),
-    #     ],
-    # ),
+   
 }
 
 

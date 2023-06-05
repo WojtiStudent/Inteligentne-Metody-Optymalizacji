@@ -56,8 +56,9 @@ class InCycleVerticesSwapGenerator:
                         i=i,
                         j=j,
                         cycle_index=cycle_index,
-                        delta=calculate_delta(cycle, i, j, distance_matrix),
+                        delta=None,
                         do=swap_vertices_inside_cycle,
+                        calculate_delta=calculate_delta,
                     )
                 )
         return actions

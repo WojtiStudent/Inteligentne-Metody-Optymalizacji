@@ -10,3 +10,4 @@ class Action:
     delta: int
     do: callable
     change_type: str = None
+    calculate_delta: callable = None

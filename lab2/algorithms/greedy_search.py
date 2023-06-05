@@ -26,6 +26,19 @@ class GreedySearch:
             possible_actions = self.get_possible_actions(solution, distance_matrix)
             random.shuffle(possible_actions)
             for action in possible_actions:
+                if action.name == "swapEdgesInsideCycle":
+                    action.delta = action.calculate_delta(
+                        solution[action.cycle_index], action.i, action.j, distance_matrix
+                    )
+                elif action.name == "swapVerticesOutsideCycle":
+                    action.delta = action.calculate_delta(
+                        solution, action.i, action.j, distance_matrix
+                    )
+                elif action.name == "swapVerticesBetweenCycles":
+                    action.delta = action.calculate_delta(
+                        solution, action.i, action.j, distance_matrix
+                    )
+                    
                 if action.delta < 0:
                     action.do(
                         solution[action.cycle_index]
